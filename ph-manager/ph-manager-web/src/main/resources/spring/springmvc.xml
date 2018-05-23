@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <!-- 配置注解驱动 -->
+    <mvc:annotation-driven>
+		<mvc:message-converters register-defaults="true">
+		<!-- 配置Fastjson支持 -->
+			<bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<!-- <value>text/html;charset=UTF-8</value> -->
+						<value>application/json</value>
+					</list>
+				</property>
+				<property name="features">
+					<list>
+						<value>WriteMapNullValue</value>
+						<value>QuoteFieldNames</value>
+					</list>
+				</property>
+			</bean>
+		</mvc:message-converters>
+    </mvc:annotation-driven>
+    
+ 	<!-- 配置包扫描器 -->    
+    <context:component-scan base-package="com.ph.controller"></context:component-scan>    
+    
+    <!-- 配置拦截器 -->
+	<mvc:interceptors>
+		<!-- 多个拦截器，顺序执行 -->
+		<!-- 配置登录验证拦截器 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.ph.filter.LoginHandlerIntercepter"></bean>
+		</mvc:interceptor>
+		<!-- 配置Session和Request拦截器 -->
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<bean class="com.ph.filter.SystemRequestFilter"></bean>
+		</mvc:interceptor>
+		
+	</mvc:interceptors>
+    
+    
+    <!-- 
+    <mvc:resources location="/WEB-INF/js/" mapping="/js/**"/>
+    <mvc:resources location="/WEB-INF/css/" mapping="/css/**"/> 
+    -->
+    
+    <!-- 视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- 设定默认编码 -->
+		<property name="defaultEncoding" value="UTF-8"></property>
+		<!-- 设定文件上传的最大值5MB，5*1024*1024 -->
+		<property name="maxUploadSize" value="5242880"></property>
+	</bean>
+	
+	<!-- 声明全局的异常处理Resolver -->
+	<!-- <bean id="handlerExceptionResolver" class="com.ph.resolver.SysExceptionResolver" /> -->
+</beans>
